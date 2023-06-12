@@ -1,65 +1,149 @@
 import "./gl-matrix.js";
+import {} from "./gl-matrix.js";
 const canvas = document.getElementById("canvas");
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 const gl = canvas.getContext("webgl");
+const mat4 = glMatrix.mat4;
 try {
   console.log("working");
 } catch (error) {
   console.error(error);
 }
 
-// vertex data
-// const vertexData = [0, 1, 0, 1, -1, 0, -1, -1, 0]; // xyz coordinates (x,x,x)
-//prettier-ignore
+const FOV = 150;
+//prettier-ignore THIS IS THE CUBE
 const vertexData = [
-    -1.0,-1.0,-1.0, // triangle 1 : begin
-    -1.0,-1.0, 1.0,
-    -1.0, 1.0, 1.0, // triangle 1 : end
-    1.0, 1.0,-1.0, // triangle 2 : begin
-    -1.0,-1.0,-1.0,
-    -1.0, 1.0,-1.0, // triangle 2 : end
-    1.0,-1.0, 1.0,
-    -1.0,-1.0,-1.0,
-    1.0,-1.0,-1.0,
-    1.0, 1.0,-1.0,
-    1.0,-1.0,-1.0,
-    -1.0,-1.0,-1.0,
-    -1.0,-1.0,-1.0,
-    -1.0, 1.0, 1.0,
-    -1.0, 1.0,-1.0,
-    1.0,-1.0, 1.0,
-    -1.0,-1.0, 1.0,
-    -1.0,-1.0,-1.0,
-    -1.0, 1.0, 1.0,
-    -1.0,-1.0, 1.0,
-    1.0,-1.0, 1.0,
-    1.0, 1.0, 1.0,
-    1.0,-1.0,-1.0,
-    1.0, 1.0,-1.0,
-    1.0,-1.0,-1.0,
-    1.0, 1.0, 1.0,
-    1.0,-1.0, 1.0,
-    1.0, 1.0, 1.0,
-    1.0, 1.0,-1.0,
-    -1.0, 1.0,-1.0,
-    1.0, 1.0, 1.0,
-    -1.0, 1.0,-1.0,
-    -1.0, 1.0, 1.0,
-    1.0, 1.0, 1.0,
-    -1.0, 1.0, 1.0,
-    1.0,-1.0, 1.0
-]
+  -1.0,
+  -1.0,
+  -1.0, // triangle 1 : begin
+  -1.0,
+  -1.0,
+  1.0,
+  -1.0,
+  1.0,
+  1.0, // triangle 1 : end
+  1.0,
+  1.0,
+  -1.0, // triangle 2 : begin
+  -1.0,
+  -1.0,
+  -1.0,
+  -1.0,
+  1.0,
+  -1.0, // triangle 2 : end
+  1.0,
+  -1.0,
+  1.0,
+  -1.0,
+  -1.0,
+  -1.0,
+  1.0,
+  -1.0,
+  -1.0,
+  1.0,
+  1.0,
+  -1.0,
+  1.0,
+  -1.0,
+  -1.0,
+  -1.0,
+  -1.0,
+  -1.0,
+  -1.0,
+  -1.0,
+  -1.0,
+  -1.0,
+  1.0,
+  1.0,
+  -1.0,
+  1.0,
+  -1.0,
+  1.0,
+  -1.0,
+  1.0,
+  -1.0,
+  -1.0,
+  1.0,
+  -1.0,
+  -1.0,
+  -1.0,
+  -1.0,
+  1.0,
+  1.0,
+  -1.0,
+  -1.0,
+  1.0,
+  1.0,
+  -1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  -1.0,
+  -1.0,
+  1.0,
+  1.0,
+  -1.0,
+  1.0,
+  -1.0,
+  -1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  -1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  -1.0,
+  -1.0,
+  1.0,
+  -1.0,
+  1.0,
+  1.0,
+  1.0,
+  -1.0,
+  1.0,
+  -1.0,
+  -1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  -1.0,
+  1.0,
+  1.0,
+  1.0,
+  -1.0,
+  1.0,
+];
 
-// color data
-// const colorData = [1, 0, 0, 0, 1, 0, 0, 0, 1]; //rgb values (x,x,x)
-
-const colorData = [];
-
-for (let vertex = 0; vertex < vertexData.length; vertex++) {
-  colorData.push(Math.random());
+function createSpherePointCloud(numberOfPoints) {
+  let points = [];
+  for (let i = 0; i < numberOfPoints; i++) {
+    points.push(
+      ...[Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5]
+    );
+  }
+  return points;
 }
+
+// const vertexData = createSpherePointCloud(1000);
+const colorData = [1, 1, 1];
+
+// for (let vertex = 0; vertex < vertexData.length / 3; vertex++) {
+//   const color = vertex / vertexData.length;
+//   colorData.push(color);
+//   colorData.push(color / 5);
+//   colorData.push(color / 10);
+// }
 
 // create buffer
 console.log("positionBuffer");
@@ -151,12 +235,26 @@ gl.enable(gl.DEPTH_TEST);
 
 // Uniform addition location in code
 
-const matrix = glMatrix.mat4.create();
+const modelMatrix = mat4.create();
+const viewMatrix = mat4.create();
 const projectionMatrix = mat4.create();
-glMatrix;
+mat4.perspective(
+  projectionMatrix,
+  (FOV * Math.PI) / 180,
+  canvas.width / canvas.height,
+  1e-4, //near cull plane
+  1e4
+);
 
-// glMatrix.mat4.translate(matrix, matrix, [0.2, 0.5, 0.25]);
-glMatrix.mat4.scale(matrix, matrix, [0.2, 0.2, 0.2]);
+mat4.translate(modelMatrix, modelMatrix, [0, 0, -2]);
+// mat4.scale(modelMatrix, modelMatrix, [2, 2, 2]);
+
+mat4.translate(viewMatrix, viewMatrix, [-0.5, 0, 1]);
+// any transformations done to the viewmatrix (camera) are inverted and turned into modelmatrix transformations
+mat4.invert(viewMatrix, viewMatrix);
+
+const mvMatrix = mat4.create();
+const mvpMatrix = mat4.create();
 
 const uniformLocations = {
   matrix: gl.getUniformLocation(program, `matrix`),
@@ -167,11 +265,17 @@ const uniformLocations = {
 function animate() {
   requestAnimationFrame(animate);
 
-  glMatrix.mat4.rotateZ(matrix, matrix, 1 / 800);
-  glMatrix.mat4.rotateY(matrix, matrix, 1 / 250);
-  glMatrix.mat4.rotateX(matrix, matrix, -1 / 150);
-  gl.uniformMatrix4fv(uniformLocations.matrix, false, matrix);
-  console.log("drawTriangles");
+  mat4.rotateZ(modelMatrix, modelMatrix, 1 / 800);
+  mat4.rotateY(modelMatrix, modelMatrix, 1 / 250);
+  mat4.rotateX(modelMatrix, modelMatrix, -1 / 150);
+
+  // apply camera transformations
+  mat4.multiply(mvMatrix, viewMatrix, modelMatrix);
+  // apply projection transform
+  mat4.multiply(mvpMatrix, projectionMatrix, mvMatrix);
+  // final to render frame
+  gl.uniformMatrix4fv(uniformLocations.matrix, false, mvpMatrix);
+  console.log("draw");
   gl.drawArrays(gl.TRIANGLES, 0, vertexData.length / 3); //mode, starting vertex 0index, how many vertices,
 }
 
