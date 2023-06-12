@@ -6,6 +6,7 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 const gl = canvas.getContext("webgl");
 const mat4 = glMatrix.mat4;
+const vec3 = glMatrix.vec3;
 try {
   console.log("working");
 } catch (error) {
@@ -14,136 +15,142 @@ try {
 
 const FOV = 150;
 //prettier-ignore THIS IS THE CUBE
-const vertexData = [
-  -1.0,
-  -1.0,
-  -1.0, // triangle 1 : begin
-  -1.0,
-  -1.0,
-  1.0,
-  -1.0,
-  1.0,
-  1.0, // triangle 1 : end
-  1.0,
-  1.0,
-  -1.0, // triangle 2 : begin
-  -1.0,
-  -1.0,
-  -1.0,
-  -1.0,
-  1.0,
-  -1.0, // triangle 2 : end
-  1.0,
-  -1.0,
-  1.0,
-  -1.0,
-  -1.0,
-  -1.0,
-  1.0,
-  -1.0,
-  -1.0,
-  1.0,
-  1.0,
-  -1.0,
-  1.0,
-  -1.0,
-  -1.0,
-  -1.0,
-  -1.0,
-  -1.0,
-  -1.0,
-  -1.0,
-  -1.0,
-  -1.0,
-  1.0,
-  1.0,
-  -1.0,
-  1.0,
-  -1.0,
-  1.0,
-  -1.0,
-  1.0,
-  -1.0,
-  -1.0,
-  1.0,
-  -1.0,
-  -1.0,
-  -1.0,
-  -1.0,
-  1.0,
-  1.0,
-  -1.0,
-  -1.0,
-  1.0,
-  1.0,
-  -1.0,
-  1.0,
-  1.0,
-  1.0,
-  1.0,
-  1.0,
-  -1.0,
-  -1.0,
-  1.0,
-  1.0,
-  -1.0,
-  1.0,
-  -1.0,
-  -1.0,
-  1.0,
-  1.0,
-  1.0,
-  1.0,
-  -1.0,
-  1.0,
-  1.0,
-  1.0,
-  1.0,
-  1.0,
-  1.0,
-  -1.0,
-  -1.0,
-  1.0,
-  -1.0,
-  1.0,
-  1.0,
-  1.0,
-  -1.0,
-  1.0,
-  -1.0,
-  -1.0,
-  1.0,
-  1.0,
-  1.0,
-  1.0,
-  1.0,
-  -1.0,
-  1.0,
-  1.0,
-  1.0,
-  -1.0,
-  1.0,
-];
+// const vertexData = [
+//   -1.0,
+//   -1.0,
+//   -1.0, // triangle 1 : begin
+//   -1.0,
+//   -1.0,
+//   1.0,
+//   -1.0,
+//   1.0,
+//   1.0, // triangle 1 : end
+//   1.0,
+//   1.0,
+//   -1.0, // triangle 2 : begin
+//   -1.0,
+//   -1.0,
+//   -1.0,
+//   -1.0,
+//   1.0,
+//   -1.0, // triangle 2 : end
+//   1.0,
+//   -1.0,
+//   1.0,
+//   -1.0,
+//   -1.0,
+//   -1.0,
+//   1.0,
+//   -1.0,
+//   -1.0,
+//   1.0,
+//   1.0,
+//   -1.0,
+//   1.0,
+//   -1.0,
+//   -1.0,
+//   -1.0,
+//   -1.0,
+//   -1.0,
+//   -1.0,
+//   -1.0,
+//   -1.0,
+//   -1.0,
+//   1.0,
+//   1.0,
+//   -1.0,
+//   1.0,
+//   -1.0,
+//   1.0,
+//   -1.0,
+//   1.0,
+//   -1.0,
+//   -1.0,
+//   1.0,
+//   -1.0,
+//   -1.0,
+//   -1.0,
+//   -1.0,
+//   1.0,
+//   1.0,
+//   -1.0,
+//   -1.0,
+//   1.0,
+//   1.0,
+//   -1.0,
+//   1.0,
+//   1.0,
+//   1.0,
+//   1.0,
+//   1.0,
+//   -1.0,
+//   -1.0,
+//   1.0,
+//   1.0,
+//   -1.0,
+//   1.0,
+//   -1.0,
+//   -1.0,
+//   1.0,
+//   1.0,
+//   1.0,
+//   1.0,
+//   -1.0,
+//   1.0,
+//   1.0,
+//   1.0,
+//   1.0,
+//   1.0,
+//   1.0,
+//   -1.0,
+//   -1.0,
+//   1.0,
+//   -1.0,
+//   1.0,
+//   1.0,
+//   1.0,
+//   -1.0,
+//   1.0,
+//   -1.0,
+//   -1.0,
+//   1.0,
+//   1.0,
+//   1.0,
+//   1.0,
+//   1.0,
+//   -1.0,
+//   1.0,
+//   1.0,
+//   1.0,
+//   -1.0,
+//   1.0,
+// ];
 
 function createSpherePointCloud(numberOfPoints) {
   let points = [];
   for (let i = 0; i < numberOfPoints; i++) {
-    points.push(
-      ...[Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5]
-    );
+    const r = () => Math.random() * 2 - 1;
+    const inputPoint = [r(), r(), r()];
+    const outputPoint = vec3.normalize(vec3.create(), inputPoint);
+
+    points.push(...outputPoint);
   }
   return points;
 }
 
-// const vertexData = createSpherePointCloud(1000);
-const colorData = [1, 1, 1];
+const vertexData = createSpherePointCloud(1e5);
+const colorData = createPointColorData(vertexData);
 
-// for (let vertex = 0; vertex < vertexData.length / 3; vertex++) {
-//   const color = vertex / vertexData.length;
-//   colorData.push(color);
-//   colorData.push(color / 5);
-//   colorData.push(color / 10);
-// }
+function createPointColorData(pointCloudArray) {
+  const colorData = [];
+  for (let point = 0; point < pointCloudArray.length; point++) {
+    colorData.push(0.5);
+    colorData.push(0.5);
+    colorData.push(0.5);
+    colorData.push(point / pointCloudArray.length);
+  }
+  return colorData;
+}
 
 // create buffer
 console.log("positionBuffer");
@@ -169,17 +176,17 @@ gl.shaderSource(
   precision mediump float;
 
   attribute vec3 position;
-  attribute vec3 color;
-  varying vec3 vColor;
+  attribute vec4 color;
+  varying vec4 vColor;
 
   uniform mat4 matrix;
 
   void main(void) {
     vColor = color;
     gl_Position = matrix * vec4(position, 1);
+    gl_PointSize = 2.0;
   }
   `
-  // order of matrix multiplication matters!
 );
 gl.compileShader(vertexShader);
 console.log(gl.getShaderInfoLog(vertexShader));
@@ -192,10 +199,10 @@ gl.shaderSource(
   fragmentShader,
   `
   precision mediump float;
-  varying vec3 vColor;
+  varying vec4 vColor;
 
   void main(void) {
-    gl_FragColor = vec4(vColor, 1);
+    gl_FragColor = vec4(vColor);
 }
 `
 );
@@ -247,7 +254,7 @@ mat4.perspective(
 );
 
 mat4.translate(modelMatrix, modelMatrix, [0, 0, -2]);
-// mat4.scale(modelMatrix, modelMatrix, [2, 2, 2]);
+mat4.scale(modelMatrix, modelMatrix, [0.5, 0.5, 0.5]);
 
 mat4.translate(viewMatrix, viewMatrix, [-0.5, 0, 1]);
 // any transformations done to the viewmatrix (camera) are inverted and turned into modelmatrix transformations
@@ -268,6 +275,7 @@ function animate() {
   mat4.rotateZ(modelMatrix, modelMatrix, 1 / 800);
   mat4.rotateY(modelMatrix, modelMatrix, 1 / 250);
   mat4.rotateX(modelMatrix, modelMatrix, -1 / 150);
+  mat4.scale(modelMatrix, modelMatrix, [1.01, 1.01, 1.01]);
 
   // apply camera transformations
   mat4.multiply(mvMatrix, viewMatrix, modelMatrix);
@@ -276,7 +284,7 @@ function animate() {
   // final to render frame
   gl.uniformMatrix4fv(uniformLocations.matrix, false, mvpMatrix);
   console.log("draw");
-  gl.drawArrays(gl.TRIANGLES, 0, vertexData.length / 3); //mode, starting vertex 0index, how many vertices,
+  gl.drawArrays(gl.POINTS, 0, vertexData.length / 3); //mode, starting vertex 0index, how many vertices,
 }
 
 animate();
