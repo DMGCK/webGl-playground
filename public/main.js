@@ -1,11 +1,14 @@
+import "./gl-matrix.js";
 const canvas = document.querySelector("canvas");
 const gl = canvas.getContext("webgl");
-
 try {
   console.log("working");
 } catch (error) {
   console.error(error);
 }
+
+const matrix = glMatrix.mat4.create();
+console.log(matrix);
 
 // vertex data
 const vertexData = [0, 1, 0, 1, -1, 0, -1, -1, 0]; // xyz coordinates (x,x,x)
