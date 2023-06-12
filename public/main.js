@@ -1,5 +1,8 @@
 import "./gl-matrix.js";
-const canvas = document.querySelector("canvas");
+const canvas = document.getElementById("canvas");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 const gl = canvas.getContext("webgl");
 try {
   console.log("working");
@@ -7,14 +10,56 @@ try {
   console.error(error);
 }
 
-const matrix = glMatrix.mat4.create();
-console.log(matrix);
-
 // vertex data
-const vertexData = [0, 1, 0, 1, -1, 0, -1, -1, 0]; // xyz coordinates (x,x,x)
+// const vertexData = [0, 1, 0, 1, -1, 0, -1, -1, 0]; // xyz coordinates (x,x,x)
+//prettier-ignore
+const vertexData = [
+    -1.0,-1.0,-1.0, // triangle 1 : begin
+    -1.0,-1.0, 1.0,
+    -1.0, 1.0, 1.0, // triangle 1 : end
+    1.0, 1.0,-1.0, // triangle 2 : begin
+    -1.0,-1.0,-1.0,
+    -1.0, 1.0,-1.0, // triangle 2 : end
+    1.0,-1.0, 1.0,
+    -1.0,-1.0,-1.0,
+    1.0,-1.0,-1.0,
+    1.0, 1.0,-1.0,
+    1.0,-1.0,-1.0,
+    -1.0,-1.0,-1.0,
+    -1.0,-1.0,-1.0,
+    -1.0, 1.0, 1.0,
+    -1.0, 1.0,-1.0,
+    1.0,-1.0, 1.0,
+    -1.0,-1.0, 1.0,
+    -1.0,-1.0,-1.0,
+    -1.0, 1.0, 1.0,
+    -1.0,-1.0, 1.0,
+    1.0,-1.0, 1.0,
+    1.0, 1.0, 1.0,
+    1.0,-1.0,-1.0,
+    1.0, 1.0,-1.0,
+    1.0,-1.0,-1.0,
+    1.0, 1.0, 1.0,
+    1.0,-1.0, 1.0,
+    1.0, 1.0, 1.0,
+    1.0, 1.0,-1.0,
+    -1.0, 1.0,-1.0,
+    1.0, 1.0, 1.0,
+    -1.0, 1.0,-1.0,
+    -1.0, 1.0, 1.0,
+    1.0, 1.0, 1.0,
+    -1.0, 1.0, 1.0,
+    1.0,-1.0, 1.0
+]
 
 // color data
-const colorData = [1, 0, 0, 0, 1, 0, 0, 0, 1]; //rgb values (x,x,x)
+// const colorData = [1, 0, 0, 0, 1, 0, 0, 0, 1]; //rgb values (x,x,x)
+
+const colorData = [];
+
+for (let vertex = 0; vertex < vertexData.length; vertex++) {
+  colorData.push(Math.random());
+}
 
 // create buffer
 console.log("positionBuffer");
@@ -43,11 +88,14 @@ gl.shaderSource(
   attribute vec3 color;
   varying vec3 vColor;
 
+  uniform mat4 matrix;
+
   void main(void) {
     vColor = color;
-    gl_Position = vec4(position, 1);
+    gl_Position = matrix * vec4(position, 1);
   }
   `
+  // order of matrix multiplication matters!
 );
 gl.compileShader(vertexShader);
 console.log(gl.getShaderInfoLog(vertexShader));
@@ -99,7 +147,34 @@ gl.vertexAttribPointer(colorLocation, 3, gl.FLOAT, false, 0, 0); //attribute, nu
 console.log("useProgram");
 gl.useProgram(program);
 
-console.log("drawTriangles");
-gl.drawArrays(gl.TRIANGLES, 0, 3); //mode, starting vertex 0index, how many vertices,
+gl.enable(gl.DEPTH_TEST);
+
+// Uniform addition location in code
+
+const matrix = glMatrix.mat4.create();
+const projectionMatrix = mat4.create();
+glMatrix;
+
+// glMatrix.mat4.translate(matrix, matrix, [0.2, 0.5, 0.25]);
+glMatrix.mat4.scale(matrix, matrix, [0.2, 0.2, 0.2]);
+
+const uniformLocations = {
+  matrix: gl.getUniformLocation(program, `matrix`),
+};
+
+//strongly typed method
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  glMatrix.mat4.rotateZ(matrix, matrix, 1 / 800);
+  glMatrix.mat4.rotateY(matrix, matrix, 1 / 250);
+  glMatrix.mat4.rotateX(matrix, matrix, -1 / 150);
+  gl.uniformMatrix4fv(uniformLocations.matrix, false, matrix);
+  console.log("drawTriangles");
+  gl.drawArrays(gl.TRIANGLES, 0, vertexData.length / 3); //mode, starting vertex 0index, how many vertices,
+}
+
+animate();
 
 // draw
